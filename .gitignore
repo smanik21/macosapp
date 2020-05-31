@@ -1,0 +1,7 @@
+
+*.xcworkspacedata
+*.xcuserstate
+*.xcscheme
+*.xcbkptlist
+Squiggles/Squiggles.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+Squiggles/Squiggles.xcodeproj/xcuserdata/masingha.xcuserdatad/xcschemes/xcschememanagement.plist

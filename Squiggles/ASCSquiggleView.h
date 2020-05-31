@@ -53,8 +53,11 @@
   The number of times to rotate the current set of squiggles around the center of the view.
  */
 @property (nonatomic) NSUInteger rotations;
+@property (nonatomic) NSTimer* timer;
 
 // Removes all squiggles from the view.
 - (void)removeAllSquiggles;
+
+- (void)timerFireMethod:(NSTimer *)timer;
 
 @end

@@ -74,8 +74,13 @@ static CGFloat randomComponent(void) {
 
         // Default view has no squiggles.
         _squiggles = [NSMutableArray array];
+        
+        _timer =  [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)0.2
+                                     target:self
+                                   selector:@selector(timerFireMethod:)
+                                   userInfo:nil
+                                    repeats:YES];
     }
-
     return self;
 }
 
@@ -103,7 +108,15 @@ static CGFloat randomComponent(void) {
 
 // The method invoked when it is time for an NSView to draw itself.
 - (void)drawRect:(NSRect)rect {
-
+    
+    static int spool = -1;
+    
+    spool = (spool + 1) % 10;
+    if(spool > 5 && spool < 10)
+    {
+        return;
+    }
+    
     // Clear our current background and make it white.
     [[NSColor whiteColor] set];
     NSRectFill(rect);
@@ -159,7 +172,7 @@ static CGFloat randomComponent(void) {
 
     [self.squiggles addObject:newSquiggle];
 
-    [self setNeedsDisplay:YES];
+    [self setNeedsDisplayInRect: [self bounds]];
 }
 
 // Draw points on existing squiggle on mouse drag.
@@ -173,7 +186,7 @@ static CGFloat randomComponent(void) {
 
     [currentSquiggle addPoint:locationInView];
 
-    [self setNeedsDisplay:YES];
+    [self setNeedsDisplayInRect: [self bounds]];
 }
 
 #pragma mark - NSView display optimization
@@ -182,8 +195,13 @@ static CGFloat randomComponent(void) {
  Opaque content drawing can allow some optimizations to happen. The default value is NO.
  */
 - (BOOL)isOpaque {
-	return YES;
+
+	return NO;
 }
 
+- (void)timerFireMethod:(NSTimer *)timer {
+    NSLog(@"timer fired");
+    [self setNeedsDisplayInRect: [self bounds]];
+}
 
 @end
