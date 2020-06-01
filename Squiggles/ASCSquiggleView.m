@@ -80,6 +80,8 @@ static CGFloat randomComponent(void) {
                                    selector:@selector(timerFireMethod:)
                                    userInfo:nil
                                     repeats:YES];
+        
+       // _cachedBitmap = [[NSBitmapImageRep alloc] initForIncrementalLoad];
     }
     return self;
 }
@@ -114,13 +116,14 @@ static CGFloat randomComponent(void) {
     spool = (spool + 1) % 10;
     if(spool > 5 && spool < 10)
     {
+       // NSImage* image = [[NSImage alloc] initWithCGImage:[_cachedBitmap CGImage] size:NSZeroSize];
+        //[image drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
         return;
     }
     
     // Clear our current background and make it white.
     [[NSColor whiteColor] set];
     NSRectFill(rect);
-
 
     /*
       Create a coordinate transformation based on the value of the rotation slider (to be repeatedly applied below).
@@ -145,6 +148,11 @@ static CGFloat randomComponent(void) {
         // Apply the transform to rotate in preparation for the next pass.
         [transform concat];
     }
+
+//    if(!_cachedBitmap)
+//        _cachedBitmap = [self bitmapImageRepForCachingDisplayInRect:[self bounds]];
+    
+    //[self cacheDisplayInRect:[self bounds] toBitmapImageRep:_cachedBitmap];
 }
 
 #pragma mark - Mouse Event Methods
@@ -172,7 +180,7 @@ static CGFloat randomComponent(void) {
 
     [self.squiggles addObject:newSquiggle];
 
-    [self setNeedsDisplayInRect: [self bounds]];
+    [self setNeedsDisplay:YES];
 }
 
 // Draw points on existing squiggle on mouse drag.
@@ -186,7 +194,7 @@ static CGFloat randomComponent(void) {
 
     [currentSquiggle addPoint:locationInView];
 
-    [self setNeedsDisplayInRect: [self bounds]];
+    [self setNeedsDisplay:YES];
 }
 
 #pragma mark - NSView display optimization
@@ -201,7 +209,23 @@ static CGFloat randomComponent(void) {
 
 - (void)timerFireMethod:(NSTimer *)timer {
     NSLog(@"timer fired");
-    [self setNeedsDisplayInRect: [self bounds]];
+    int cond = 1;
+    
+    cond =  cond;
+    
+    switch (cond) {
+    case 0:
+        [self setNeedsDisplay:YES];
+    break;
+    case 1:
+        [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width/2, [self bounds].size.height/2)];
+    break;
+    case 2:
+        [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
+  default:
+    break;
+}
+
 }
 
 @end

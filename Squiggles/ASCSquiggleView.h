@@ -54,7 +54,7 @@
  */
 @property (nonatomic) NSUInteger rotations;
 @property (nonatomic) NSTimer* timer;
-
+@property (nonatomic) NSBitmapImageRep* cachedBitmap;
 // Removes all squiggles from the view.
 - (void)removeAllSquiggles;
 
