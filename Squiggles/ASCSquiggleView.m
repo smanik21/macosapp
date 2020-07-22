@@ -80,7 +80,7 @@
 - (id)initWithFrame:(NSRect)frame {
     
     self = [super initWithFrame:frame];
-
+    
     if (self) {
         // Default view has one rotation.
         _bgColor = [NSColor systemGreenColor];
@@ -88,6 +88,8 @@
         _makeOpaque = YES;
         
         _viewID = @"deafult";
+        
+        [self setCanDrawSubviewsIntoLayer:YES];
     }
     return self;
 }
