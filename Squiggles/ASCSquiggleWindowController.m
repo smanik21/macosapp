@@ -53,18 +53,34 @@
 
 @property (weak) IBOutlet NSStepper *rotationStepper;
 @property (weak) IBOutlet NSTextField *rotationTextField;
-@property (weak) IBOutlet ASCSquiggleView *squiggleView;
+@property (weak) IBOutlet MyView *mainView;
+@property (nonatomic) ASCSquiggleView *squiggleView;
 
 @end
 
 
 @implementation ASCSquiggleWindowController
 
+//- (ASCSquiggleView*) squiggleView {
+//
+//    return [self squiggleView].mainView;
+//}
+//
+//
+//- (void) setSquiggleView: (ASCSquiggleView*) view {
+//
+//    [self squiggleView].mainView = view;
+//}
+
 #pragma mark - NSWindowController Methods
 
 - (void)awakeFromNib {
     
     [super awakeFromNib];
+    
+    _squiggleView = [[ASCSquiggleView alloc] initWithFrame:[_mainView frame]];
+    [_mainView addSubview:_squiggleView];
+    
     /*
       Set the squiggle view rotations to be the value initially set for the text field in MainMenu.xib.
      */

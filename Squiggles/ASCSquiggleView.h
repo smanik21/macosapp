@@ -61,3 +61,10 @@
 - (void)timerFireMethod:(NSTimer *)timer;
 
 @end
+
+@interface MyView : NSView
+
+@property (nonatomic) Boolean makeOpaque;
+@property (nonatomic) NSColor* bgColor;
+
+@end

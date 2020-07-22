@@ -48,6 +48,62 @@
 #import "ASCSquiggleView.h"
 #import "ASCSquiggle.h"
 
+
+@interface MyWindow : NSWindow
+
+
+@end
+
+@implementation MyWindow
+
+//- (CGFloat)alphaValue {
+//    CGFloat val = 1.0;
+//    return val;
+//}
+
+- (BOOL)isOpaque {
+    
+    BOOL val = NO;
+    return val;
+}
+
+
+- (NSColor*) backgroundColor {
+    return [NSColor systemBlueColor];
+}
+
+@end
+
+@implementation MyView
+
+// The designated initializer for NSView.
+- (id)initWithFrame:(NSRect)frame {
+    
+    self = [super initWithFrame:frame];
+
+    if (self) {
+        // Default view has one rotation.
+        _bgColor = [NSColor systemGreenColor];
+
+        _makeOpaque = NO;
+    }
+    return self;
+}
+
+- (BOOL)isOpaque {
+    return _makeOpaque;
+}
+
+- (void)drawRect:(NSRect)rect {
+
+    // Clear our current background and make it white.
+    [_bgColor set];
+    NSRectFill(rect);
+
+}
+
+@end
+
 @interface ASCSquiggleView()
 
 @property NSMutableArray *squiggles;
@@ -75,11 +131,12 @@ static CGFloat randomComponent(void) {
         // Default view has no squiggles.
         _squiggles = [NSMutableArray array];
         
-        _timer =  [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)0.2
+        _timer =  [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval).2
                                      target:self
                                    selector:@selector(timerFireMethod:)
                                    userInfo:nil
                                     repeats:YES];
+        
         
        // _cachedBitmap = [[NSBitmapImageRep alloc] initForIncrementalLoad];
     }
@@ -180,7 +237,8 @@ static CGFloat randomComponent(void) {
 
     [self.squiggles addObject:newSquiggle];
 
-    [self setNeedsDisplay:YES];
+  //  [self setNeedsDisplay:YES];
+   [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
 }
 
 // Draw points on existing squiggle on mouse drag.
@@ -194,7 +252,8 @@ static CGFloat randomComponent(void) {
 
     [currentSquiggle addPoint:locationInView];
 
-    [self setNeedsDisplay:YES];
+  //  [self setNeedsDisplay:YES];
+   [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
 }
 
 #pragma mark - NSView display optimization
@@ -204,7 +263,7 @@ static CGFloat randomComponent(void) {
  */
 - (BOOL)isOpaque {
 
-	return NO;
+	return YES;
 }
 
 - (void)timerFireMethod:(NSTimer *)timer {
