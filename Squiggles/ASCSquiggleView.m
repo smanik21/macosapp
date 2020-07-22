@@ -86,6 +86,8 @@
         _bgColor = [NSColor systemGreenColor];
 
         _makeOpaque = YES;
+        
+        _viewID = @"deafult";
     }
     return self;
 }
@@ -101,7 +103,7 @@
     NSColor* color = (count % 2 == 0) ? _bgColor : [NSColor systemRedColor];
     [color set];
     NSRectFill(rect);
-    count ^= 1;
+   // count ^= 1;
 }
 
 @end

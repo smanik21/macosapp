@@ -66,5 +66,6 @@
 
 @property (nonatomic) Boolean makeOpaque;
 @property (nonatomic) NSColor* bgColor;
+@property (nonatomic) NSString* viewID;
 
 @end

@@ -78,10 +78,28 @@
     
     [super awakeFromNib];
     
+    [_mainView setViewID:@"Main"];
+    
+    NSView* parentView = _mainView;
+    
+    MyView* v1 = [[MyView alloc] initWithFrame:[_mainView frame]];
+    [v1 setBgColor:[NSColor systemOrangeColor]];
+    //[v1 setMakeOpaque:NO];
+    [v1 setViewID:@"Orange"];
+    [_mainView addSubview:v1];
+    parentView = v1;
+    
+    MyView* v2 = [[MyView alloc] initWithFrame:[_mainView frame]];
+    [v2 setBgColor:[NSColor systemPurpleColor]];
+    [v2 setMakeOpaque:NO];
+    [v2 setViewID:@"Purple"];
+    [v1 addSubview:v2];
+    parentView = v2;
+    
     _squiggleView = [[ASCSquiggleView alloc] initWithFrame:[_mainView frame]];
     //[_mainView setWantsLayer:NO];
     //[_squiggleView setWantsLayer:YES];
-    [_mainView addSubview:_squiggleView];
+    [parentView addSubview:_squiggleView];
     
     /*
       Set the squiggle view rotations to be the value initially set for the text field in MainMenu.xib.
