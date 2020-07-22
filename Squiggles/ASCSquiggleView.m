@@ -85,7 +85,7 @@
         // Default view has one rotation.
         _bgColor = [NSColor systemGreenColor];
 
-        _makeOpaque = NO;
+        _makeOpaque = YES;
     }
     return self;
 }
@@ -97,9 +97,11 @@
 - (void)drawRect:(NSRect)rect {
 
     // Clear our current background and make it white.
-    [_bgColor set];
+    static int count = 0;
+    NSColor* color = (count % 2 == 0) ? _bgColor : [NSColor systemRedColor];
+    [color set];
     NSRectFill(rect);
-
+    count ^= 1;
 }
 
 @end
@@ -271,13 +273,14 @@ static CGFloat randomComponent(void) {
     int cond = 1;
     
     cond =  cond;
-    
+    int offset = 20;  //offset for invalidating a part of superview.
     switch (cond) {
     case 0:
         [self setNeedsDisplay:YES];
     break;
     case 1:
-        [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width/2, [self bounds].size.height/2)];
+        [self setNeedsDisplayInRect: CGRectMake(0, -offset, [self bounds].size.width/2, [self bounds].size.height/2 + offset)];
+    //   [self displayRectIgnoringOpacity: CGRectMake(0, 0, [self bounds].size.width/2, [self bounds].size.height/2)];
     break;
     case 2:
         [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];

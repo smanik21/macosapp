@@ -79,6 +79,8 @@
     [super awakeFromNib];
     
     _squiggleView = [[ASCSquiggleView alloc] initWithFrame:[_mainView frame]];
+    //[_mainView setWantsLayer:NO];
+    //[_squiggleView setWantsLayer:YES];
     [_mainView addSubview:_squiggleView];
     
     /*
