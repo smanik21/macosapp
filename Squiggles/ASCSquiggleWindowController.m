@@ -79,7 +79,7 @@
     [super awakeFromNib];
     
     [_mainView setViewID:@"Main"];
-    [_mainView setMakeOpaque:NO];
+    //[_mainView setMakeOpaque:NO];
     
     //[_mainView setWantsLayer:NO];  //no impact as wantsLayer is anyways NO without this
     
