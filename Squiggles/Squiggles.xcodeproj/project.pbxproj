@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3E92E9C615926FD900DE9BF9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E92E9C215926FD900DE9BF9 /* MainMenu.xib */; };
 		3EC23125159BA40100788213 /* ASCSquiggleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EC23124159BA40100788213 /* ASCSquiggleWindowController.m */; };
+		5DF9D2F624D2CC5200DD7EAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DF9D2F524D2CAD300DD7EAF /* QuartzCore.framework */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
@@ -28,12 +29,13 @@
 		3E92E9C315926FD900DE9BF9 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3EC23123159BA40100788213 /* ASCSquiggleWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCSquiggleWindowController.h; sourceTree = "<group>"; };
 		3EC23124159BA40100788213 /* ASCSquiggleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCSquiggleWindowController.m; sourceTree = "<group>"; };
+		5DF9D2F524D2CAD300DD7EAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* Squiggles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squiggles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D000D8820DEE27C700948FEA /* ASCSquiggle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCSquiggle.h; sourceTree = "<group>"; };
 		D000D8830DEE27C700948FEA /* ASCSquiggle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCSquiggle.m; sourceTree = "<group>"; };
 		D000D8840DEE27C700948FEA /* ASCSquiggleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCSquiggleView.h; sourceTree = "<group>"; };
-		D000D8850DEE27C700948FEA /* ASCSquiggleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCSquiggleView.m; sourceTree = "<group>"; };
+		D000D8850DEE27C700948FEA /* ASCSquiggleView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = ASCSquiggleView.m; sourceTree = "<group>"; };
 		D27374510E1D84C800BFAF79 /* ReadMe.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
 		D6EB65BD0DFF3C0D00C54ED6 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -44,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
+				5DF9D2F624D2CC5200DD7EAF /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +56,7 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5DF9D2F524D2CAD300DD7EAF /* QuartzCore.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -267,6 +271,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -280,6 +286,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;

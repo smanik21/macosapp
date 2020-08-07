@@ -85,25 +85,25 @@
     
     NSView* parentView = _mainView;
     
-    MyView* v1 = [[MyView alloc] initWithFrame:[_mainView frame]];
-    [v1 setBgColor:[NSColor systemOrangeColor]];
-    [v1 setMakeOpaque:NO];
-    //[v1 setWantsLayer:YES];   //causes all subviews in heirarchy to have own layer
-    [v1 setViewID:@"Orange"];
-    [_mainView addSubview:v1];
-    parentView = v1;
-
-    MyView* v2 = [[MyView alloc] initWithFrame:[_mainView frame]];
-    [v2 setBgColor:[NSColor systemPurpleColor]];
-    //[v2 setMakeOpaque:NO];
-    [v2 setWantsLayer:YES];  //causes all subviews in heirarchy to have own layer
-    [v2 setViewID:@"Purple"];
-    [v1 addSubview:v2];
-    parentView = v2;
+//    MyView* v1 = [[MyView alloc] initWithFrame:[_mainView frame]];
+//    [v1 setBgColor:[NSColor systemOrangeColor]];
+//    [v1 setMakeOpaque:NO];
+//    //[v1 setWantsLayer:YES];   //causes all subviews in heirarchy to have own layer
+//    [v1 setViewID:@"Orange"];
+//    [_mainView addSubview:v1];
+//    parentView = v1;
+//
+//    MyView* v2 = [[MyView alloc] initWithFrame:[_mainView frame]];
+//    [v2 setBgColor:[NSColor systemPurpleColor]];
+//    //[v2 setMakeOpaque:NO];
+//    //[v2 setWantsLayer:YES];  //causes all subviews in heirarchy to have own layer
+//    [v2 setViewID:@"Purple"];
+//    [v1 addSubview:v2];
+//    parentView = v2;
     
     _squiggleView = [[ASCSquiggleView alloc] initWithFrame:[_mainView frame]];
-    //[_mainView setWantsLayer:NO];
-    //[_squiggleView setWantsLayer:YES];
+    [_squiggleView setWantsLayer:YES];
+    [_squiggleView setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
     [parentView addSubview:_squiggleView];
     
     /*

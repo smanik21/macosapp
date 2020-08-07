@@ -48,9 +48,18 @@
 #import "ASCSquiggleView.h"
 #import "ASCSquiggle.h"
 
+#import <QuartzCore/QuartzCore.h>
+
+//i am seeing previous view momentarily when spooling on and timer off -- issues goes away with CACHE_LAYER ON
+#define SPOOLING 1
+#define MAX_SPOOL_FACTOR 5
+#define NSVIEW_CANVAS_CACHING (SPOOLING && 0)
+#define CUSTOM_LAYER 1
+#define LAYER_DELEGATE_DRAW 0
+#define CACHE_LAYER ((CUSTOM_LAYER || LAYER_DELEGATE_DRAW) && 0)
+#define PERIODIC_INVALIDATE 0
 
 @interface MyWindow : NSWindow
-
 
 @end
 
@@ -105,7 +114,7 @@
     NSColor* color = (count % 2 == 0) ? _bgColor : [NSColor systemRedColor];
     [color set];
     NSRectFill(rect);
-   // count ^= 1;
+   // count ^= 1;           //enable to toggle color alternatively
 }
 
 @end
@@ -114,10 +123,120 @@
 
 @property NSMutableArray *squiggles;
 
+- (void)customDrawLayer:(CALayer*)layer
+inContext:(CGContextRef)ctx;
+
+@end
+
+#if CUSTOM_LAYER
+
+@interface MyLayer : CALayer {
+
+    ASCSquiggleView* fView;
+}
+
+- (id)initWithView:(ASCSquiggleView*)view;
+
+#if !LAYER_DELEGATE_DRAW
+- (void)drawInContext:(CGContextRef)ctx;
+#endif
+
 @end
 
 
+@implementation MyLayer {
+}
+
+- (id)initWithView:(ASCSquiggleView*)view {
+
+    fView = view;
+    return [self init];
+    }
+
+- (BOOL) isOpaque {
+ return YES;  // this needs to be YES even in NSView is opaque, otherwise it is flickering when spooling on and (CUSTOM_LAYER 1
+                // and LAYER_DELEGATE_DRAW 1)
+}
+
+#if !LAYER_DELEGATE_DRAW
+- (void)drawInContext:(CGContextRef)ctx {
+    
+    [fView customDrawLayer:self inContext:ctx];
+}
+#endif
+
+@end
+#endif // CUSTOM_LAYER
+
+
 @implementation ASCSquiggleView
+
+- (void)invalidateRect: (NSRect)rect
+whole:(BOOL)val {
+    if(val)
+    {
+        [self setNeedsDisplayInRect: CGRectMake(0, 0, rect.size.width, rect.size.height)];
+        //[self setNeedsDisplay:YES];
+    }
+    else
+    {
+        [self setNeedsDisplayInRect: CGRectMake(0, 0, rect.size.width, rect.size.height)];
+    }
+}
+
+- (void)customDrawLayer:(CALayer*)layer
+inContext:(CGContextRef)ctx {
+    
+    // Technically this is wrong. We should probably provide a drawing delegate
+    // to the CALayer rather than override this routine. For now, this is just
+    // test code.
+
+    // Can we limit the back buffer blit to just what is invalid??
+
+#if CACHE_LAYER
+    static CGImageRef fDoubleBuffer = nullptr;
+    
+    if (fDoubleBuffer != nullptr) {
+
+        // Ok if the buffer exists we need to validate it. Is it the
+        // same size, scroll position, etc... if not don't blit it.
+        // or maybe not - it seems to work just fine since it is
+        // auto corrected below.
+
+        CGContextSaveGState( ctx );
+        CGRect r = CGRectMake(0, 0, CGImageGetWidth(fDoubleBuffer), CGImageGetHeight(fDoubleBuffer));
+
+        CGContextTranslateCTM(ctx, 0, 0);
+
+//        CGAffineTransform flipTransform = { 1, 0, 0, -1, 0, r.size.height };
+//        CGContextConcatCTM( ctx, flipTransform );
+
+        CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+
+        CGContextDrawImage (ctx, r, fDoubleBuffer);
+        CGContextRestoreGState (ctx);
+    }
+#endif //#if CACHE_LAYER
+
+    NSGraphicsContext* old = [NSGraphicsContext currentContext];
+    NSGraphicsContext* ng = [NSGraphicsContext graphicsContextWithCGContext: ctx flipped:NO];
+    [NSGraphicsContext setCurrentContext:ng];
+
+    // This should be limited to clip bounds if possible
+    [self drawRect:self.bounds];
+
+    [NSGraphicsContext setCurrentContext:old];
+
+#if CACHE_LAYER
+    if (fDoubleBuffer != nullptr)
+        CGImageRelease(fDoubleBuffer);
+
+    // If I understand this function correctly it should be copy on write
+    // and very fast.
+    fDoubleBuffer = CGBitmapContextCreateImage(ctx);
+#endif //#if CACHE_LAYER
+}
+
 
 static CGFloat randomComponent(void) {
     return (CGFloat)(random() / (CGFloat)INT_MAX);
@@ -137,14 +256,18 @@ static CGFloat randomComponent(void) {
         // Default view has no squiggles.
         _squiggles = [NSMutableArray array];
         
+#if PERIODIC_INVALIDATE
         _timer =  [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval).2
                                      target:self
                                    selector:@selector(timerFireMethod:)
                                    userInfo:nil
                                     repeats:YES];
+#endif
         
-        
-       // _cachedBitmap = [[NSBitmapImageRep alloc] initForIncrementalLoad];
+#if NSVIEW_CANVAS_CACHING
+        _cachedBitmap = [[NSBitmapImageRep alloc] initForIncrementalLoad];
+#endif
+
     }
     return self;
 }
@@ -155,7 +278,7 @@ static CGFloat randomComponent(void) {
 - (void)removeAllSquiggles {
     
     [self.squiggles removeAllObjects];
-    [self setNeedsDisplay:YES];
+    [self invalidateRect:[self bounds] whole:YES];
 }
 
 
@@ -171,19 +294,41 @@ static CGFloat randomComponent(void) {
 
 #pragma mark - Drawing Methods
 
+#if LAYER_DELEGATE_DRAW
+- (void)drawLayer:(CALayer *)layer
+        inContext:(CGContextRef)ctx {
+    [self customDrawLayer:layer inContext:ctx];
+}
+#endif
+
+#if CUSTOM_LAYER
+-(CALayer*)makeBackingLayer {
+
+    CALayer* l = [[MyLayer alloc] initWithView:self];
+    
+    //[l setBackgroundColor: CGColorCreateGenericRGB(0.0, 1.0, 0.0, 1.0)];
+    return l;
+    }
+#endif
+
 // The method invoked when it is time for an NSView to draw itself.
 - (void)drawRect:(NSRect)rect {
     
+#if SPOOLING
     static int spool = -1;
     
-    spool = (spool + 1) % 10;
-    if(spool > 5 && spool < 10)
+    int maxSpoolFactor = MAX_SPOOL_FACTOR;
+    spool = (spool + 1) % maxSpoolFactor;
+    if(spool > maxSpoolFactor/2 && spool < maxSpoolFactor)
     {
-       // NSImage* image = [[NSImage alloc] initWithCGImage:[_cachedBitmap CGImage] size:NSZeroSize];
-        //[image drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
+#if NSVIEW_CANVAS_CACHING
+        NSImage* image = [[NSImage alloc] initWithCGImage:[_cachedBitmap CGImage] size:NSZeroSize];
+        [image drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
+#endif
         return;
     }
-    
+#endif
+
     // Clear our current background and make it white.
     [[NSColor whiteColor] set];
     NSRectFill(rect);
@@ -212,10 +357,13 @@ static CGFloat randomComponent(void) {
         [transform concat];
     }
 
-//    if(!_cachedBitmap)
-//        _cachedBitmap = [self bitmapImageRepForCachingDisplayInRect:[self bounds]];
+#if NSVIEW_CANVAS_CACHING
+    if(!_cachedBitmap)
+        _cachedBitmap = [self bitmapImageRepForCachingDisplayInRect:[self bounds]];
     
-    //[self cacheDisplayInRect:[self bounds] toBitmapImageRep:_cachedBitmap];
+    [self cacheDisplayInRect:[self bounds] toBitmapImageRep:_cachedBitmap];
+#endif
+
 }
 
 #pragma mark - Mouse Event Methods
@@ -243,8 +391,7 @@ static CGFloat randomComponent(void) {
 
     [self.squiggles addObject:newSquiggle];
 
-  //  [self setNeedsDisplay:YES];
-   [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
+    [self invalidateRect:[self bounds] whole:YES];
 }
 
 // Draw points on existing squiggle on mouse drag.
@@ -258,8 +405,7 @@ static CGFloat randomComponent(void) {
 
     [currentSquiggle addPoint:locationInView];
 
-  //  [self setNeedsDisplay:YES];
-   [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
+    [self invalidateRect:[self bounds] whole:YES];
 }
 
 #pragma mark - NSView display optimization
@@ -272,26 +418,28 @@ static CGFloat randomComponent(void) {
 	return YES;
 }
 
+#if PERIODIC_INVALIDATE
 - (void)timerFireMethod:(NSTimer *)timer {
-    NSLog(@"timer fired");
+    //NSLog(@"timer fired");
     int cond = 1;
     
     cond =  cond;
     int offset = 20;  //offset for invalidating a part of superview.
     switch (cond) {
-    case 0:
-        [self setNeedsDisplay:YES];
-    break;
-    case 1:
-        [self setNeedsDisplayInRect: CGRectMake(0, -offset, [self bounds].size.width/2, [self bounds].size.height/2 + offset)];
-    //   [self displayRectIgnoringOpacity: CGRectMake(0, 0, [self bounds].size.width/2, [self bounds].size.height/2)];
-    break;
-    case 2:
-        [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
-  default:
-    break;
+        case 0:
+            [self setNeedsDisplay:YES];
+        break;
+        case 1:
+            [self setNeedsDisplayInRect: CGRectMake(0, -offset, [self bounds].size.width/2, [self bounds].size.height/2 + offset)];
+           //[self displayRectIgnoringOpacity: CGRectMake(0, 0, [self bounds].size.width/2, [self bounds].size.height/2)];
+        break;
+        case 2:
+            [self setNeedsDisplayInRect: CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height)];
+        break;
+        default:
+        break;
+    }
 }
-
-}
+#endif //PERIODIC_INVALIDATE
 
 @end
